@@ -80,7 +80,7 @@ class FilterManager
 
         $image = $image->get($format, array('quality' => $quality));
 
-        $contentType = $request->getMimeType($format);
+		$contentType = $this->getMimeType($format);
         if (empty($contentType)) {
             $contentType = 'image/'.$format;
         }
@@ -88,6 +88,38 @@ class FilterManager
         return new Response($image, 200, array('Content-Type' => $contentType));
     }
 
+	/**
+     * Internal
+     *
+     * Get the mime type based on format.
+     *
+     * @param string $format
+     *
+     * @return string mime-type
+     *
+     * @throws RuntimeException
+     */
+    private function getMimeType($format)
+    {
+        static $mimeTypes = array(
+            'jpeg' => 'image/jpeg',
+            'jpg'  => 'image/jpeg',
+            'gif'  => 'image/gif',
+            'png'  => 'image/png',
+            'wbmp' => 'image/vnd.wap.wbmp',
+            'xbm'  => 'image/xbm',
+        );
+
+        if (!isset($mimeTypes[$format])) {
+            throw new RuntimeException(sprintf(
+                'Unsupported format given. Only %s are supported, %s given',
+                implode(", ", array_keys($mimeTypes)), $format
+            ));
+        }
+
+        return $mimeTypes[$format];
+    }
+	
     /**
      * Apply the provided filter set on the given Image.
      *
